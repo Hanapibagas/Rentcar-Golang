@@ -1,0 +1,503 @@
+openapi: "3.0.2"
+info:
+  title: API Title
+  version: "1.0"
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /product:
+    post:
+      tags:
+        - Products
+      description: untuk melakukan penambahan data produk saja tidak termasuk produk gambar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductSchema"
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseCreateProduct200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    get:
+      tags:
+        - Products
+      description: untuk melakukan pencarian data berdasarkan nama produk
+      parameters:
+        - name: page
+          in: query
+          description: page
+          schema:
+            type: string
+            example: 1
+        - name: search
+          in: query
+          description: nama product yang mau di cari
+          schema:
+            type: string
+            example: sepatu sneakers wanita
+        - name: category
+          in: query
+          description: untuk mencari category
+          schema:
+            type: string
+            example: women_shoes
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              example:
+                message: "success"
+                data:
+                  - id: 43
+                    product_name: SEPATU SNEAKERS WANITA AIR JORDAN 3 TINKER - White, 40
+                    category: women shoes
+                    price: 800000
+                    user_id: 3
+                    details_images:
+                      - product_id: 43
+                        images: "/path/to/image1.jpg"
+                      - product_id: 43
+                        images: "/path/to/image2.jpg"
+                      - product_id: 43
+                        images: "/path/to/image3.jpg"
+                    user_info:
+                      user_id: 3
+                      nama_user: Hanapi Bagas Pamungkas
+                      tag_line: Murah meria
+                      email: sample@gmail.com
+                      province: jakarta
+                      city: bekasi
+                      domicile: jakarta pusat
+                      address: jln patimurah nomor 3
+                      phone_number: 8123456789
+        "400":
+          $ref: "#/components/responses/Response400"
+
+  /product/{product_id}/image:
+    post:
+      tags:
+        - Products
+      description: menambahkan details gambar yang sudah memiliki id product yang telah di input sebelumnya
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ProductGambarSchema"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                message: "success"
+                product_id: 3
+                images_details:
+                  - product_id: 3
+                    images: "/path/to/image1.jpg"
+                  - product_id: 3
+                    images: "/path/to/image2.jpg"
+                  - product_id: 3
+                    images: "/path/to/image3.jpg"
+        "400":
+          description: Bad Request
+
+  /product/{product_id}/image/{image_id}:
+    put:
+      tags:
+        - Products
+      description: update detail gambar by id
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ProductGambarSchema"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                message: "success"
+                product_id: 3
+                images_details:
+                  - product_id: 3
+                    images: "/path/to/image1.jpg"
+        "400":
+          description: Bad Request
+    delete:
+      tags:
+        - Products
+      description: delete detail gambar by id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                message: "success"
+                product_id: 3
+                images_details:
+                  - product_id: 3
+                    images: "/path/to/image1.jpg"
+        "400":
+          description: Bad Request
+
+  /product/{product_id}:
+    put:
+      tags:
+        - Products
+      description: untuk melakukan update product by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductSchema"
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseCreateProduct200"
+        "400":
+          $ref: "#/components/responses/Response400"
+
+    delete:
+      tags:
+        - Products
+      description: untuk melakukan delete product by id
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseCreateProduct200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    get:
+      tags:
+        - Products
+      description: untuk menampilkan details product
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              example:
+                message: "success"
+                data:
+                  - id: 43
+                    product_name: SEPATU SNEAKERS WANITA AIR JORDAN 3 TINKER - White, 40
+                    category: women shoes
+                    price: 800000
+                    user_id: 3
+                    description: SEPATU SNEAKERS PRIA NIKE SB DUNK LOW INITIAL D AE86
+                    details_images:
+                      - product_id: 43
+                        images: "/path/to/image1.jpg"
+                      - product_id: 43
+                        images: "/path/to/image2.jpg"
+                      - product_id: 43
+                        images: "/path/to/image3.jpg"
+                    user_info:
+                      user_id: 3
+                      nama_user: Hanapi Bagas Pamungkas
+                      tag_line: Murah meria
+                      email: sample@gmail.com
+                      province: jakarta
+                      city: bekasi
+                      domicile: jakarta pusat
+                      address: jln patimurah nomor 3
+                      phone_number: 8123456789
+        "400":
+          $ref: "#/components/responses/Response400"
+
+components:
+  responses:
+    ResponseCreateProduct200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  users_id:
+                    type: integer
+                  product_name:
+                    type: string
+                  price:
+                    type: integer
+                  category:
+                    type: string
+                  description:
+                    type: string
+            example:
+              message: success
+              data:
+                users_id: 4
+                product_name: Grizle Sepatu Gaul Trendy 22/Sepatu Pria Import - Abu-abu, 39
+                price: 265000
+                category: sepatu cowo description:SEPATU CASUAL TRENDY ELEGAN KEKINIAN/SEPATU GAUL Sepatu Sports Import 100% ORIGINAL Kualitas bagus dengan harga terjangkau Ringan, leluasa dibawa berjalan serta nyaman saat digunakan Sepatu anti slip, tidak pengap dan juga tidak mudah lepas Model nya simple dan elegan, Trend Fashion yaaa :))
+    ResponseSearchProduct200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  users_id:
+                    type: integer
+                  product_name:
+                    type: string
+                  price:
+                    type: integer
+                  photo_url:
+                    type: string
+            example:
+              message: success
+              data:
+                users_id: 4
+                product_name: iPhone 14
+                price: 7.800.000
+                photo_url: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+    Response400:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 400
+              message:
+                type: string
+                example: Bad Request
+
+  schemas:
+    ProductsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        data:
+          type: array
+          minItems: 3
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/ProductInfo"
+              - $ref: "#/components/schemas/ProductInfo1"
+              - $ref: "#/components/schemas/ProductInfo2"
+    ProductInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        product_name:
+          type: string
+          example: "Produk A"
+        price:
+          type: number
+          example: 50000
+        users_id:
+          type: integer
+          example: 2
+        images_details:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsGambarInfo"
+        user_info:
+          $ref: "#/components/schemas/UserInfo"
+    ProductInfo1:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        product_name:
+          type: string
+          example: "Produk B"
+        price:
+          type: number
+          example: 20000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 2
+        user_info:
+          $ref: "#/components/schemas/UserInfo"
+    ProductInfo2:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        product_name:
+          type: string
+          example: "Produk C"
+        price:
+          type: number
+          example: 12000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 4
+        user_info:
+          $ref: "#/components/schemas/UserInfo1"
+    UserInfo:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "hanapi bagas"
+        email:
+          type: string
+          example: "sampel@gmail.com"
+    UserInfo1:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 4
+        username:
+          type: string
+          example: "yoga"
+        email:
+          type: string
+          example: "sampelyoga@gmail.com"
+    DetailsGambarInfo:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 1
+        images:
+          type: string
+          example: "/path/to/image3.jpg"
+
+    ProductsResponseByUser:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        data:
+          type: array
+          minItems: 2
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/ProductInfoByUser"
+              - $ref: "#/components/schemas/ProductInfo1ByUser"
+    ProductInfoByUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        product_name:
+          type: string
+          example: "Produk A"
+        price:
+          type: number
+          example: 50000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 2
+        user_info:
+          $ref: "#/components/schemas/UserInfoByUser"
+    ProductInfo1ByUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        product_name:
+          type: string
+          example: "Produk B"
+        price:
+          type: number
+          example: 20000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 2
+        user_info:
+          $ref: "#/components/schemas/UserInfoByUser"
+    UserInfoByUser:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "hanapi bagas"
+        email:
+          type: string
+          example: "sampel@gmail.com"
+
+    PencarianProductSchma:
+      type: object
+      properties:
+        product_name:
+          type: string
+          example: iPhone 14
+
+    ProductSchema:
+      type: object
+      properties:
+        product_name:
+          type: string
+          example: Grizle Sepatu Gaul Trendy 22/Sepatu Pria Import - Abu-abu, 39
+        price:
+          type: integer
+          example: 265000
+        qty:
+          type: integer
+          example: 20
+        category:
+          type: string
+          example: sepatu cowo
+        description:
+          type: string
+          example: SEPATU CASUAL TRENDY ELEGAN KEKINIAN/SEPATU GAUL
+            Sepatu Sports Import 100% ORIGINAL
+            Kualitas bagus dengan harga terjangkau
+            Ringan, leluasa dibawa berjalan serta nyaman saat digunakan
+            Sepatu anti slip, tidak pengap dan juga tidak mudah lepas
+            Model nya simple dan elegan, Trend Fashion yaaa :))
+    ProductGambarSchema:
+      type: object
+      properties:
+        images:
+          type: string
+          format: binary
+
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+
+security:
+  - BearerAuth: []

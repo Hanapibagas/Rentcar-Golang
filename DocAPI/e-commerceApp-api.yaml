@@ -1,0 +1,730 @@
+openapi: 3.0.0
+info:
+  description: |
+    Open api e-commerce app.
+
+  version: "1.0.0"
+  title: E-commerceApp
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/DWIMIRANDAA/E-CommerceApp/1.0.0
+  - url: "https://petstore.swagger.io/v2"
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: altacademy@gmail.com
+                password:
+                  type: string
+                  example: qwertyuiop
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseLogin200"
+        "400":
+          $ref: "#/components/responses/ResponseLogin400"
+      security: []
+  /register:
+    post:
+      tags:
+        - "Authentication"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_name:
+                  type: string
+                  example: Toko sepatu jaya
+                email:
+                  type: string
+                  example: sample@gmail.com
+                password:
+                  type: string
+                  example: qwerty
+                domicile:
+                  type: string
+                  example: jakarta pusat
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseRegister200"
+        "400":
+          $ref: "#/components/responses/ResponseRegister400"
+      security: []
+
+  /users:
+    get:
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: get user by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleUserSchema"
+        "400":
+          $ref: "#/components/responses/ResponseRegister400"
+
+    put:
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsersSchema"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+
+    delete:
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+
+  /products:
+    post:
+      tags:
+        - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductSchema"
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseCreateProduct200"
+        "400":
+          $ref: "#/components/responses/Response400"
+
+  /product?page=1:
+    get:
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: get all products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+        "400":
+          $ref: "#/components/responses/Response400"
+
+  /product/{product_id}/gambar:
+    post:
+      tags:
+        - Products
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ProductGambarSchema"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                message: "success"
+                product_id: 3
+                images_details:
+                  - images: "/path/to/image1.jpg"
+                  - images: "/path/to/image2.jpg"
+                  - images: "/path/to/image3.jpg"
+        "400":
+          description: Bad Request
+
+  /products/search:
+    get:
+      tags:
+        - Products
+      parameters:
+        - name: nama_product
+          in: query
+          description: nama product yang mau di cari
+          required: true
+          schema:
+            $ref: "#/components/schemas/PencarianProductSchma"
+      responses:
+        "200":
+          $ref: "#/components/responses/ResponseSearchProduct200"
+        "400":
+          $ref: "#/components/responses/Response400"
+
+  # /users/{users_id}/products:
+  #   get:
+  #     tags:
+  #       - Products
+  #     security:
+  #       - BearerAuth: []
+  #     responses:
+  #       "200":
+  #         description: get all products
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ProductsResponseByUser"
+
+  #       "400":
+  #         $ref: "#/components/responses/Response400"
+
+  # /product/{product_id}:
+  #   put:
+  #     tags:
+  #       - Products
+  #     requestBody:
+  #       content:
+  #         multipart/form-data:
+  #           schema:
+  #             $ref: "#/components/schemas/ProductSchema"
+  #     responses:
+  #       "200":
+  #         $ref: "#/components/responses/ResponseCreateProduct200"
+  #       "400":
+  #         $ref: "#/components/responses/Response400"
+
+  #   delete:
+  #     tags:
+  #       - Products
+  #     requestBody:
+  #       content:
+  #         multipart/form-data:
+  #           schema:
+  #             $ref: "#/components/schemas/ProductSchema"
+  #     responses:
+  #       "200":
+  #         $ref: "#/components/responses/ResponseCreateProduct200"
+  #       "400":
+  #         $ref: "#/components/responses/Response400"
+
+components:
+  responses:
+    ResponseLogin200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  role:
+                    type: string
+                  token:
+                    type: string
+            example:
+              message: success
+              data:
+                email: altacademy@gmail.com
+                role: super_admin
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    ResponseRegister200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  nama_toko:
+                    type: string
+                  email:
+                    type: string
+                  role:
+                    type: string
+                  domicile:
+                    type: string
+            example:
+              message: success
+              data:
+                nama_toko: Toko sepatu jaya
+                email: sample@gmail.com
+                domicile: jakarta pusat
+                role: user
+
+    Response200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  nama_lengkap:
+                    type: string
+                  email:
+                    type: string
+                  token:
+                    type: string
+            example:
+              message: success
+              data:
+                nama_lengkap: hanapi bagas pamungkas
+                email: sample@gmail.com
+                token: eyJhbGciOiJIUzI1NiIsInR2QT4fwpMeJf36POk6yJV_adQssw5
+    ResponseRegister400:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 400
+              message:
+                type: string
+                example: Bad Request
+    ResponseLogin400:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 400
+              message:
+                type: string
+                example: Bad Request
+    Response400:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 400
+              message:
+                type: string
+                example: Bad Request
+    ResponseCreateProduct200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  users_id:
+                    type: integer
+                  product_name:
+                    type: string
+                  price:
+                    type: integer
+                  category:
+                    type: string
+                  description:
+                    type: string
+            example:
+              message: success
+              data:
+                users_id: 4
+                product_name: Grizle Sepatu Gaul Trendy 22/Sepatu Pria Import - Abu-abu, 39
+                price: 265000
+                category: sepatu cowo description:SEPATU CASUAL TRENDY ELEGAN KEKINIAN/SEPATU GAUL Sepatu Sports Import 100% ORIGINAL Kualitas bagus dengan harga terjangkau Ringan, leluasa dibawa berjalan serta nyaman saat digunakan Sepatu anti slip, tidak pengap dan juga tidak mudah lepas Model nya simple dan elegan, Trend Fashion yaaa :))
+
+    ResponseSearchProduct200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  users_id:
+                    type: integer
+                  product_name:
+                    type: string
+                  price:
+                    type: integer
+                  photo_url:
+                    type: string
+            example:
+              message: success
+              data:
+                users_id: 4
+                product_name: iPhone 14
+                price: 7.800.000
+                photo_url: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+
+  schemas:
+    UsersSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Alterra Academy
+        email:
+          type: string
+          example: Altacademy@gmail.com
+        password:
+          type: string
+          example: qwertyuiop
+
+    SimpleUserSchema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_name:
+          type: string
+          example: Toko jaya sepatu
+        tag_line:
+          type: string
+          example: Murah meria
+        province:
+          type: string
+          example: sulawesi selatan
+        city:
+          type: string
+          example: Kota makassar
+        domicile:
+          type: string
+          example: Kota makassar
+        address:
+          type: string
+          example: jln patimurah nomor 3
+        phone_number:
+          type: integer
+          example: 08123456789
+        category:
+          type: string
+          example: toko sepatu
+
+    ProductsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        data:
+          type: array
+          minItems: 3
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/ProductInfo"
+              - $ref: "#/components/schemas/ProductInfo1"
+              - $ref: "#/components/schemas/ProductInfo2"
+    ProductInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        product_name:
+          type: string
+          example: "Produk A"
+        price:
+          type: number
+          example: 50000
+        users_id:
+          type: integer
+          example: 2
+        images_details:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsGambarInfo"
+        user_info:
+          $ref: "#/components/schemas/UserInfo"
+    ProductInfo1:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        product_name:
+          type: string
+          example: "Produk B"
+        price:
+          type: number
+          example: 20000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 2
+        user_info:
+          $ref: "#/components/schemas/UserInfo"
+    ProductInfo2:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        product_name:
+          type: string
+          example: "Produk C"
+        price:
+          type: number
+          example: 12000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 4
+        user_info:
+          $ref: "#/components/schemas/UserInfo1"
+    UserInfo:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "hanapi bagas"
+        email:
+          type: string
+          example: "sampel@gmail.com"
+    UserInfo1:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 4
+        username:
+          type: string
+          example: "yoga"
+        email:
+          type: string
+          example: "sampelyoga@gmail.com"
+    DetailsGambarInfo:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 1
+        images:
+          type: string
+          example: "/path/to/image3.jpg"
+
+    ProductsResponseByUser:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        data:
+          type: array
+          minItems: 2
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/ProductInfoByUser"
+              - $ref: "#/components/schemas/ProductInfo1ByUser"
+    ProductInfoByUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        product_name:
+          type: string
+          example: "Produk A"
+        price:
+          type: number
+          example: 50000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 2
+        user_info:
+          $ref: "#/components/schemas/UserInfoByUser"
+    ProductInfo1ByUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        product_name:
+          type: string
+          example: "Produk B"
+        price:
+          type: number
+          example: 20000
+        photo_url:
+          type: string
+          example: https://s3.amazonaws.com/bucket-name/path-to-image/image.jpg
+        users_id:
+          type: integer
+          example: 2
+        user_info:
+          $ref: "#/components/schemas/UserInfoByUser"
+    UserInfoByUser:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "hanapi bagas"
+        email:
+          type: string
+          example: "sampel@gmail.com"
+
+    PencarianProductSchma:
+      type: object
+      properties:
+        product_name:
+          type: string
+          example: iPhone 14
+
+    ProductSchema:
+      type: object
+      properties:
+        product_name:
+          type: string
+          example: Grizle Sepatu Gaul Trendy 22/Sepatu Pria Import - Abu-abu, 39
+        price:
+          type: integer
+          example: 265000
+        qty:
+          type: integer
+          example: 20
+        category:
+          type: string
+          example: sepatu cowo
+        description:
+          type: string
+          example: SEPATU CASUAL TRENDY ELEGAN KEKINIAN/SEPATU GAUL
+            Sepatu Sports Import 100% ORIGINAL
+            Kualitas bagus dengan harga terjangkau
+            Ringan, leluasa dibawa berjalan serta nyaman saat digunakan
+            Sepatu anti slip, tidak pengap dan juga tidak mudah lepas
+            Model nya simple dan elegan, Trend Fashion yaaa :))
+    ProductGambarSchema:
+      type: object
+      properties:
+        images:
+          type: string
+          format: binary
+
+    CartSchema:
+      type: object
+      required:
+        - product_id
+        - qty
+      properties:
+        product_id:
+          type: integer
+          example: 15
+        qty:
+          type: number
+          example: 2
+
+    OrderSchema:
+      type: object
+      properties:
+        cart_id:
+          type: array
+          items:
+            type: integer
+            example: 23
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "Jalan Lembah Griya"
+            city:
+              type: string
+              example: "Bogor"
+            state:
+              type: string
+              example: "Indonesia"
+            zip:
+              type: number
+              example: 10101
+        credit_card:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "Visa"
+            name:
+              type: string
+              example: "Alterra"
+            number:
+              type: string
+              example: "1000-1000-1000-1000"
+            cvv:
+              type: number
+              example: 101
+            month:
+              type: number
+              example: 1
+            year:
+              type: number
+              example: 2029
+
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+
+security:
+  - BearerAuth: []
