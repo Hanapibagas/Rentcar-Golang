@@ -1,9 +1,9 @@
 package main
 
 import (
-	"BE-REPO-20/app/configs"
-	"BE-REPO-20/app/database"
-	"BE-REPO-20/app/routes"
+	"StartUp-Go/app/configs"
+	"StartUp-Go/app/database"
+	"StartUp-Go/app/routes"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

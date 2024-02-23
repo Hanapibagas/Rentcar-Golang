@@ -1,12 +1,8 @@
 package database
 
 import (
-	"BE-REPO-20/app/configs"
-	"BE-REPO-20/features/admin/data"
-	_cartData "BE-REPO-20/features/cart/data"
-	_productData "BE-REPO-20/features/product/data"
-
-	// "BE-REPO-20/features/auth/data"
+	"StartUp-Go/app/configs"
+	"StartUp-Go/features/user/data"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -28,9 +24,4 @@ func InitDBMysql(cfg *configs.AppConfig) *gorm.DB {
 
 func InitMigrate(db *gorm.DB) {
 	db.AutoMigrate(&data.User{})
-	db.AutoMigrate(&data.Order{})
-	db.AutoMigrate(&data.ItemOrder{})
-	db.AutoMigrate(&_productData.Product{})
-	db.AutoMigrate(&_productData.ProductImage{})
-	db.AutoMigrate(&_cartData.Cart{})
 }

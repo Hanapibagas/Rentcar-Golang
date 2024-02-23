@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"BE-REPO-20/app/configs"
+	"StartUp-Go/app/configs"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

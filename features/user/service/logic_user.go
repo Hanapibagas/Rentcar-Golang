@@ -1,68 +1,63 @@
 package service
 
 import (
-	"BE-REPO-20/features/user"
+	"StartUp-Go/app/middlewares"
+	"StartUp-Go/features/user"
+	"StartUp-Go/utils/encrypts"
 	"errors"
-	"mime/multipart"
+
+	"github.com/go-playground/validator"
 )
 
 type userService struct {
-	userData user.UserDataInterface
+	userData    user.UserDataInterface
+	hashService encrypts.HashInterface
+	validate    *validator.Validate
 }
 
-func NewUser(repo user.UserDataInterface) user.UserServiceInterface {
+func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.UserServiceInterface {
 	return &userService{
-		userData: repo,
+		userData:    repo,
+		hashService: hash,
+		validate:    validator.New(),
 	}
 }
 
-// SelectShop implements user.UserServiceInterface.
-func (service *userService) SelectShop(id int) (*user.UserCore, error) {
-	if id <= 0 {
-		return nil, errors.New("invalid id")
+func (service *userService) Login(email string, password string) (data *user.UserCore, token string, err error) {
+	if email == "" || password == "" {
+		return nil, "", errors.New("email dan password wajib diisi")
 	}
 
-	data, err := service.userData.SelectShop(id)
+	data, err = service.userData.Login(email, password)
 	if err != nil {
-		return nil, err
+		return nil, "", errors.New("Email atau password salah")
 	}
-	return data, nil
+	isValid := service.hashService.CheckPasswordHash(data.Password, password)
+	if !isValid {
+		return nil, "", errors.New("password tidak sesuai.")
+	}
+
+	token, errJwt := middlewares.CreateToken(int(data.ID))
+	if errJwt != nil {
+		return nil, "", errJwt
+	}
+	return data, token, err
 }
 
-// SelectUser implements user.UserServiceInterface.
-func (service *userService) SelectUser(id int) (*user.UserCore, error) {
-	data, err := service.userData.SelectUser(id)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
-}
-
-// UpdateShop implements user.UserServiceInterface.
-func (service *userService) UpdateShop(id int, input user.UserCore, file multipart.File, nameFile string) error {
-	if id <= 0 {
-		return errors.New("invalid id")
+func (service *userService) Register(input user.UserCore) (data *user.UserCore, token string, err error) {
+	errValidate := service.validate.Struct(input)
+	if errValidate != nil {
+		return nil, "", errValidate
 	}
 
-	err := service.userData.UpdateShop(id, input, file, nameFile)
-	return err
-}
-
-// UpdateUser implements user.UserServiceInterface.
-func (service *userService) UpdateUser(id int, input user.UserCore, file multipart.File, nameFile string) error {
-	if id <= 0 {
-		return errors.New("invalid id")
+	if input.Password != "" {
+		hashedPass, errHash := service.hashService.HashPassword(input.Password)
+		if errHash != nil {
+			return nil, "", errors.New("rror hashing password")
+		}
+		input.Password = hashedPass
 	}
 
-	err := service.userData.UpdateUser(id, input, file, nameFile)
-	return err
-}
-
-// Delete implements user.UserServiceInterface.
-func (service *userService) Delete(id int) error {
-	if id <= 0 {
-		return errors.New("invalid id")
-	}
-	err := service.userData.Delete(id)
-	return err
+	data, generatedToken, err := service.userData.Register(input)
+	return data, generatedToken, err
 }
