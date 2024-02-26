@@ -26,11 +26,12 @@ func (repo *userQuery) Login(email string, password string) (data *user.UserCore
 // Register implements user.UserDataInterface.
 func (repo *userQuery) Register(input user.UserCore) (data *user.UserCore, token string, err error) {
 	inputRegisterGorm := User{
-		Name:       input.Name,
-		Occupation: input.Occupation,
-		Email:      input.Email,
-		Password:   input.Password,
-		Role:       "user",
+		Name:            input.Name,
+		Occupation:      input.Occupation,
+		Email:           input.Email,
+		EmailVerification: "not yet verified",
+		Password:        input.Password,
+		Role:            "user",
 	}
 
 	tx := repo.db.Create(&inputRegisterGorm)

@@ -8,12 +8,13 @@ import (
 
 type User struct {
 	gorm.Model
-	Name           string
-	Occupation     string
-	Email          string `gorm:"default:null;unique"`
-	AvatarFileName string
-	Password       string
-	Role           string
+	Name            string
+	Occupation      string
+	Email           string `gorm:"default:null;unique"`
+	EmailVerification string
+	AvatarFileName  string
+	Password        string
+	Role            string
 }
 
 func (u User) ModelToCore() user.UserCore {
