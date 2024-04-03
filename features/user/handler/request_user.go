@@ -11,6 +11,15 @@ type UserRequestRegister struct {
 	Role              string
 }
 
+type UserRequestVerified struct{
+	EmailVerification string
+}
+
+type UserRequestLogin struct {
+	Email    string
+	Password string
+}
+
 func RequestUserRegisterToCore(input UserRequestRegister) user.UserCore {
 	role := "user"
 	if input.Role != "" {

@@ -6,4 +6,5 @@ type UserResponRegister struct {
 	Email      string `json:"email"`
 	Role       string `json:"role"`
 	Token      string `json:"token"`
+	Respon     string `json:"respon"`
 }

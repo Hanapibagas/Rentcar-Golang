@@ -18,20 +18,30 @@ func NewUser(db *gorm.DB) user.UserDataInterface {
 	}
 }
 
-// Login implements user.UserDataInterface.
-func (repo *userQuery) Login(email string, password string) (data *user.UserCore, err error) {
+func (repo *userQuery) VerifiedEmail(id int, input user.UserCore) error {
 	panic("unimplemented")
 }
 
-// Register implements user.UserDataInterface.
+func (repo *userQuery) Login(email string, password string) (data *user.UserCore, err error) {
+	var user User
+	tx := repo.db.Where("email = ?", email).First(&user)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	result := user.ModelToCoreLogin()
+
+	return &result, nil
+}
+
 func (repo *userQuery) Register(input user.UserCore) (data *user.UserCore, token string, err error) {
 	inputRegisterGorm := User{
-		Name:            input.Name,
-		Occupation:      input.Occupation,
-		Email:           input.Email,
+		Name:              input.Name,
+		Occupation:        input.Occupation,
+		Email:             input.Email,
 		EmailVerification: "not yet verified",
-		Password:        input.Password,
-		Role:            "user",
+		Password:          input.Password,
+		Role:              "user",
 	}
 
 	tx := repo.db.Create(&inputRegisterGorm)

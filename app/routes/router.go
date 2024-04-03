@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"StartUp-Go/app/middlewares"
 	_authData "StartUp-Go/features/user/data"
 	_authHandler "StartUp-Go/features/user/handler"
 	_authService "StartUp-Go/features/user/service"
@@ -19,4 +20,6 @@ func InitRouter(db *gorm.DB, e *echo.Echo) {
 
 	// login
 	e.POST("/register", authHandler.RegisterUser)
+	e.POST("/login", authHandler.LoginUser)
+	e.POST("/verified", authHandler.VerifiedEmail, middlewares.JWTMiddleware())
 }

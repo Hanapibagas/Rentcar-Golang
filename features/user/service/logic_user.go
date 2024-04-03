@@ -23,6 +23,15 @@ func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.User
 	}
 }
 
+func (service *userService) VerifiedEmail(id int, input user.UserCore) error {
+	if id <= 0 {
+		return errors.New("invalid id")
+	}
+
+	err := service.userData.VerifiedEmail(id, input)
+	return err
+}
+
 func (service *userService) Login(email string, password string) (data *user.UserCore, token string, err error) {
 	if email == "" || password == "" {
 		return nil, "", errors.New("email dan password wajib diisi")

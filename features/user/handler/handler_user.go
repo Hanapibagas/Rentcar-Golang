@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"StartUp-Go/app/middlewares"
 	"StartUp-Go/features/user"
+	"StartUp-Go/features/user/data"
 	"StartUp-Go/utils/responses"
 	"log"
 	"net/http"
@@ -18,6 +20,30 @@ func NewUser(service user.UserServiceInterface) *UserHandler {
 	return &UserHandler{
 		userService: service,
 	}
+}
+
+func convertDataUserToUserCore(input data.User) user.UserCore {
+	return user.UserCore{
+		EmailVerification: input.EmailVerification,
+	}
+}
+
+func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
+	userId := middlewares.ExtractTokenUserId(c)
+
+	var input data.User
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid."+err.Error(), nil))
+	}
+
+	userCoreInput := convertDataUserToUserCore(input)
+
+	err := handler.userService.VerifiedEmail(userId, userCoreInput)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error insert data. insert failed"+err.Error(), nil))
+	}
+
+	return c.JSON(http.StatusOK, responses.WebResponse("insert success", nil))
 }
 
 func (handler *UserHandler) RegisterUser(c echo.Context) error {
@@ -111,7 +137,32 @@ func (handler *UserHandler) RegisterUser(c echo.Context) error {
 		Email:      newUser.Email,
 		Role:       user.Role,
 		Token:      token,
+		Respon:     "Silahkan chek email anda untuk melakukan virifikasi email.",
 	}
 
 	return c.JSON(http.StatusCreated, responses.WebResponse("insert success", responseData))
+}
+
+func (handler *UserHandler) LoginUser(c echo.Context) error {
+	var reqData = UserRequestLogin{}
+	errBind := c.Bind(&reqData)
+	if errBind != nil {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid."+errBind.Error(), nil))
+	}
+
+	result, token, err := handler.userService.Login(reqData.Email, reqData.Password)
+	if err != nil {
+		return c.JSON(http.StatusForbidden, responses.WebResponse("Email atau password tidak boleh kosong "+err.Error(), nil))
+	}
+
+	responData := map[string]any{
+		"id":                 result.ID,
+		"name":               result.Name,
+		"email":              result.Email,
+		"role":               result.Role,
+		"email_verification": result.EmailVerification,
+		"toke":               token,
+	}
+
+	return c.JSON(http.StatusOK, responses.WebResponse("insert success", responData))
 }

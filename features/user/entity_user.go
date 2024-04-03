@@ -14,9 +14,11 @@ type UserCore struct {
 type UserDataInterface interface {
 	Register(input UserCore) (data *UserCore, token string, err error)
 	Login(email, password string) (data *UserCore, err error)
+	VerifiedEmail(id int, input UserCore) error
 }
 
 type UserServiceInterface interface {
 	Register(input UserCore) (data *UserCore, token string, err error)
 	Login(email, password string) (data *UserCore, token string, err error)
+	VerifiedEmail(id int, input UserCore) error
 }
