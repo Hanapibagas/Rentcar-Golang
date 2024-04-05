@@ -11,14 +11,19 @@ type UserCore struct {
 	Role              string
 }
 
+type EmailVerification struct {
+	ID                uint
+	EmailVerification string
+}
+
 type UserDataInterface interface {
 	Register(input UserCore) (data *UserCore, token string, err error)
 	Login(email, password string) (data *UserCore, err error)
-	VerifiedEmail(id int, input UserCore) error
+	VerifiedEmail(id uint, input EmailVerification) error
 }
 
 type UserServiceInterface interface {
 	Register(input UserCore) (data *UserCore, token string, err error)
 	Login(email, password string) (data *UserCore, token string, err error)
-	VerifiedEmail(id int, input UserCore) error
+	VerifiedEmail(id uint, input EmailVerification) error
 }

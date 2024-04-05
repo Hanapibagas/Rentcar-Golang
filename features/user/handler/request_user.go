@@ -11,13 +11,20 @@ type UserRequestRegister struct {
 	Role              string
 }
 
-type UserRequestVerified struct{
-	EmailVerification string
-}
 
 type UserRequestLogin struct {
 	Email    string
 	Password string
+}
+
+type UserRequestVerified struct {
+	EmailVerification string `json:"email_verified"`
+}
+
+func RequestToUpdateVerified(input UserRequestVerified) user.EmailVerification {
+	return user.EmailVerification{
+		EmailVerification: input.EmailVerification,
+	}
 }
 
 func RequestUserRegisterToCore(input UserRequestRegister) user.UserCore {

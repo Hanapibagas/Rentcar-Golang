@@ -3,7 +3,6 @@ package handler
 import (
 	"StartUp-Go/app/middlewares"
 	"StartUp-Go/features/user"
-	"StartUp-Go/features/user/data"
 	"StartUp-Go/utils/responses"
 	"log"
 	"net/http"
@@ -22,25 +21,21 @@ func NewUser(service user.UserServiceInterface) *UserHandler {
 	}
 }
 
-func convertDataUserToUserCore(input data.User) user.UserCore {
-	return user.UserCore{
-		EmailVerification: input.EmailVerification,
-	}
-}
-
 func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
 
-	var input data.User
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid."+err.Error(), nil))
+	updateEmailVerified := UserRequestVerified{}
+	errBind := c.Bind(&updateEmailVerified)
+	if errBind != nil {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
 	}
 
-	userCoreInput := convertDataUserToUserCore(input)
+	usereCore := RequestToUpdateVerified(updateEmailVerified)
 
-	err := handler.userService.VerifiedEmail(userId, userCoreInput)
+	err := handler.userService.VerifiedEmail(uint(userId), usereCore)
+	// log.Println("user status:", usereCore)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error insert data. insert failed"+err.Error(), nil))
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data failed."+err.Error(), nil))
 	}
 
 	return c.JSON(http.StatusOK, responses.WebResponse("insert success", nil))

@@ -18,8 +18,22 @@ func NewUser(db *gorm.DB) user.UserDataInterface {
 	}
 }
 
-func (repo *userQuery) VerifiedEmail(id int, input user.UserCore) error {
-	panic("unimplemented")
+func (repo *userQuery) VerifiedEmail(id uint, input user.EmailVerification) error {
+	userEmailVerified := User{
+		EmailVerification: input.EmailVerification,
+	}
+
+	tx := repo.db.Model(&User{}).Where("id = ?", id).Updates(&userEmailVerified)
+
+	if tx.Error != nil {
+		return errors.New("database error: " + tx.Error.Error())
+	}
+
+	if tx.RowsAffected == 0 {
+		return errors.New("no rows affected, user not found")
+	}
+
+	return nil
 }
 
 func (repo *userQuery) Login(email string, password string) (data *user.UserCore, err error) {

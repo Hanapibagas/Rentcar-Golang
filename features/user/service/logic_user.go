@@ -23,9 +23,15 @@ func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.User
 	}
 }
 
-func (service *userService) VerifiedEmail(id int, input user.UserCore) error {
-	if id <= 0 {
-		return errors.New("invalid id")
+func (service *userService) VerifiedEmail(id uint, input user.EmailVerification) error {
+	errValidate := service.validate.Struct(input)
+	if errValidate != nil {
+		return errValidate
+	}
+
+	// Periksa apakah EmailVerification tidak kosong
+	if input.EmailVerification == "" {
+		return errors.New("Email Verification is empty.")
 	}
 
 	err := service.userData.VerifiedEmail(id, input)
