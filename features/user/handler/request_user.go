@@ -11,7 +11,6 @@ type UserRequestRegister struct {
 	Role              string
 }
 
-
 type UserRequestLogin struct {
 	Email    string
 	Password string
@@ -19,6 +18,16 @@ type UserRequestLogin struct {
 
 type UserRequestVerified struct {
 	EmailVerification string `json:"email_verified"`
+}
+
+type UpdatePasswordRequest struct {
+	Password string `json:"password"`
+}
+
+func RequestToUpdatePassword(input UpdatePasswordRequest) user.UserCore {
+	return user.UserCore{
+		Password: input.Password,
+	}
 }
 
 func RequestToUpdateVerified(input UserRequestVerified) user.EmailVerification {

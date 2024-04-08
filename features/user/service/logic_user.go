@@ -23,13 +23,30 @@ func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.User
 	}
 }
 
+func (service *userService) UptdatePassword(id uint, input user.UserCore) error {
+	errValidate := service.validate.Struct(input)
+	if errValidate != nil {
+		return errValidate
+	}
+
+	if input.Password != "" {
+		hashedPass, errHash := service.hashService.HashPassword(input.Password)
+		if errHash != nil {
+			return errors.New("Error hash password.")
+		}
+		input.Password = hashedPass
+	}
+
+	err := service.userData.UpdatePassword(id, input)
+	return err
+}
+
 func (service *userService) VerifiedEmail(id uint, input user.EmailVerification) error {
 	errValidate := service.validate.Struct(input)
 	if errValidate != nil {
 		return errValidate
 	}
 
-	// Periksa apakah EmailVerification tidak kosong
 	if input.EmailVerification == "" {
 		return errors.New("Email Verification is empty.")
 	}

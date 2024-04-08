@@ -22,4 +22,5 @@ func InitRouter(db *gorm.DB, e *echo.Echo) {
 	e.POST("/register", authHandler.RegisterUser)
 	e.POST("/login", authHandler.LoginUser)
 	e.POST("/verified", authHandler.VerifiedEmail, middlewares.JWTMiddleware())
+	e.PUT("/update-password", authHandler.UpdatePassword, middlewares.JWTMiddleware())
 }

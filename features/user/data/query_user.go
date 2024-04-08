@@ -5,6 +5,7 @@ import (
 	"StartUp-Go/features/user"
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,28 @@ func NewUser(db *gorm.DB) user.UserDataInterface {
 	return &userQuery{
 		db: db,
 	}
+}
+
+func (repo *userQuery) CheckPassword(savedPassword string, inputPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(savedPassword), []byte(inputPassword))
+	return err == nil
+}
+
+func (repo *userQuery) UpdatePassword(id uint, input user.UserCore) error {
+	authInput := User{
+		Password: input.Password,
+	}
+
+	tx := repo.db.Model(&User{}).Where("id = ?", id).Updates(&authInput)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
+		return errors.New("edit failed, row affected = 0")
+	}
+
+	return nil
 }
 
 func (repo *userQuery) VerifiedEmail(id uint, input user.EmailVerification) error {

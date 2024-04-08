@@ -21,10 +21,34 @@ func NewUser(service user.UserServiceInterface) *UserHandler {
 	}
 }
 
+func (handler *UserHandler) UpdatePassword(c echo.Context) error {
+	userId := middlewares.ExtractTokenUserId(c)
+
+	updatePassword := UpdatePasswordRequest{}
+	errBind := c.Bind(&updatePassword)
+	if errBind != nil {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
+	}
+
+	userCore := RequestToUpdatePassword(updatePassword)
+
+	errUpdate := handler.userService.UptdatePassword(uint(userId), userCore)
+	if errUpdate != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data. "+errUpdate.Error(), nil))
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "Successful Operation",
+	})
+}
+
 func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
 
-	updateEmailVerified := UserRequestVerified{}
+	updateEmailVerified := UserRequestVerified{
+		EmailVerification: "verified",
+	}
+
 	errBind := c.Bind(&updateEmailVerified)
 	if errBind != nil {
 		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
@@ -33,12 +57,11 @@ func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
 	usereCore := RequestToUpdateVerified(updateEmailVerified)
 
 	err := handler.userService.VerifiedEmail(uint(userId), usereCore)
-	// log.Println("user status:", usereCore)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data failed."+err.Error(), nil))
 	}
 
-	return c.JSON(http.StatusOK, responses.WebResponse("insert success", nil))
+	return c.JSON(http.StatusOK, responses.WebResponse("Email verification successful", nil))
 }
 
 func (handler *UserHandler) RegisterUser(c echo.Context) error {
@@ -104,7 +127,7 @@ func (handler *UserHandler) RegisterUser(c echo.Context) error {
 					<p>Hello ` + newUser.Name + `,</p>
 					<p>Thank you for registering with us. We are excited to have you on board!</p>
 					<p>Please verify the grow below</p>
-					<a href="https://www.example.com" class="button">click me to verify</a>
+					<a href="http://127.0.0.1:8080/verified" class="button">click me to verify</a>
 				</div>
 			</body>
 			</html>
