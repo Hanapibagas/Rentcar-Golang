@@ -1,7 +1,6 @@
 package service
 
 import (
-	"StartUp-Go/app/middlewares"
 	"StartUp-Go/features/user"
 	"StartUp-Go/utils/encrypts"
 	"errors"
@@ -23,60 +22,7 @@ func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.User
 	}
 }
 
-func (service *userService) UptdatePassword(id uint, input user.UserCore) error {
-	errValidate := service.validate.Struct(input)
-	if errValidate != nil {
-		return errValidate
-	}
-
-	if input.Password != "" {
-		hashedPass, errHash := service.hashService.HashPassword(input.Password)
-		if errHash != nil {
-			return errors.New("Error hash password.")
-		}
-		input.Password = hashedPass
-	}
-
-	err := service.userData.UpdatePassword(id, input)
-	return err
-}
-
-func (service *userService) VerifiedEmail(id uint, input user.EmailVerification) error {
-	errValidate := service.validate.Struct(input)
-	if errValidate != nil {
-		return errValidate
-	}
-
-	if input.EmailVerification == "" {
-		return errors.New("Email Verification is empty.")
-	}
-
-	err := service.userData.VerifiedEmail(id, input)
-	return err
-}
-
-func (service *userService) Login(email string, password string) (data *user.UserCore, token string, err error) {
-	if email == "" || password == "" {
-		return nil, "", errors.New("email dan password wajib diisi")
-	}
-
-	data, err = service.userData.Login(email, password)
-	if err != nil {
-		return nil, "", errors.New("Email atau password salah")
-	}
-	isValid := service.hashService.CheckPasswordHash(data.Password, password)
-	if !isValid {
-		return nil, "", errors.New("password tidak sesuai.")
-	}
-
-	token, errJwt := middlewares.CreateToken(int(data.ID))
-	if errJwt != nil {
-		return nil, "", errJwt
-	}
-	return data, token, err
-}
-
-func (service *userService) Register(input user.UserCore) (data *user.UserCore, token string, err error) {
+func (service *userService) Register(input user.RegisterCore) (data *user.RegisterCore, token string, err error) {
 	errValidate := service.validate.Struct(input)
 	if errValidate != nil {
 		return nil, "", errValidate

@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"StartUp-Go/app/middlewares"
 	"StartUp-Go/features/user"
 	"StartUp-Go/utils/responses"
-	"log"
 	"net/http"
 	"net/smtp"
 
@@ -21,59 +19,58 @@ func NewUser(service user.UserServiceInterface) *UserHandler {
 	}
 }
 
-func (handler *UserHandler) UpdatePassword(c echo.Context) error {
-	userId := middlewares.ExtractTokenUserId(c)
+// func (handler *UserHandler) UpdatePassword(c echo.Context) error {
+// 	userId := middlewares.ExtractTokenUserId(c)
 
-	updatePassword := UpdatePasswordRequest{}
-	errBind := c.Bind(&updatePassword)
-	if errBind != nil {
-		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
-	}
+// 	updatePassword := UpdatePasswordRequest{}
+// 	errBind := c.Bind(&updatePassword)
+// 	if errBind != nil {
+// 		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
+// 	}
 
-	userCore := RequestToUpdatePassword(updatePassword)
+// 	userCore := RequestToUpdatePassword(updatePassword)
 
-	errUpdate := handler.userService.UptdatePassword(uint(userId), userCore)
-	if errUpdate != nil {
-		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data. "+errUpdate.Error(), nil))
-	}
+// 	errUpdate := handler.userService.UptdatePassword(uint(userId), userCore)
+// 	if errUpdate != nil {
+// 		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data. "+errUpdate.Error(), nil))
+// 	}
 
-	return c.JSON(http.StatusOK, map[string]any{
-		"message": "Successful Operation",
-	})
-}
+// 	return c.JSON(http.StatusOK, map[string]any{
+// 		"message": "Successful Operation",
+// 	})
+// }
 
-func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
-	userId := middlewares.ExtractTokenUserId(c)
+// func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
+// 	userId := middlewares.ExtractTokenUserId(c)
 
-	updateEmailVerified := UserRequestVerified{
-		EmailVerification: "verified",
-	}
+// 	updateEmailVerified := UserRequestVerified{
+// 		EmailVerification: "verified",
+// 	}
 
-	errBind := c.Bind(&updateEmailVerified)
-	if errBind != nil {
-		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
-	}
+// 	errBind := c.Bind(&updateEmailVerified)
+// 	if errBind != nil {
+// 		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
+// 	}
 
-	usereCore := RequestToUpdateVerified(updateEmailVerified)
+// 	usereCore := RequestToUpdateVerified(updateEmailVerified)
 
-	err := handler.userService.VerifiedEmail(uint(userId), usereCore)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data failed."+err.Error(), nil))
-	}
+// 	err := handler.userService.VerifiedEmail(uint(userId), usereCore)
+// 	if err != nil {
+// 		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error editing data failed."+err.Error(), nil))
+// 	}
 
-	return c.JSON(http.StatusOK, responses.WebResponse("Email verification successful", nil))
-}
+// 	return c.JSON(http.StatusOK, responses.WebResponse("Email verification successful", nil))
+// }
 
 func (handler *UserHandler) RegisterUser(c echo.Context) error {
 	newUser := UserRequestRegister{}
-	// log.Println("role:", newUser.Name)
+	// log.Println("role:", newUser.)
 	errBind := c.Bind(&newUser)
 	if errBind != nil {
 		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid."+errBind.Error(), nil))
 	}
 
 	user := RequestUserRegisterToCore(newUser)
-	log.Println("email:", user.Email)
 
 	surel_pengirim := "disdukcapilmkskota@gmail.com"
 	kata_sandi := "tqozsznukogmyrdr"
@@ -102,13 +99,13 @@ func (handler *UserHandler) RegisterUser(c echo.Context) error {
 							color: #666;
 					}
 					.container a{
-						color: white; 
+						color: white;
 					}
 					.button {
 						display: inline-block;
 						padding: 10px 20px;
 						background-color: #007bff;
-						color: white; 
+						color: white;
 						text-decoration: none;
 						border-radius: 5px;
 						transition: background-color 0.3s ease;
@@ -116,7 +113,7 @@ func (handler *UserHandler) RegisterUser(c echo.Context) error {
 					}
 						.button:hover {
 						background-color: #0056b3;
-						color: white; 
+						color: white;
 					}
 				</style>
 			</head>
@@ -124,7 +121,7 @@ func (handler *UserHandler) RegisterUser(c echo.Context) error {
 				<div class="container">
 					<h1>Welcome to Our Platform</h1>
 					<hr>
-					<p>Hello ` + newUser.Name + `,</p>
+					<p>Hello ` + newUser.Email + `,</p>
 					<p>Thank you for registering with us. We are excited to have you on board!</p>
 					<p>Please verify the grow below</p>
 					<a href="http://127.0.0.1:8080/verified" class="button">click me to verify</a>
@@ -150,37 +147,36 @@ func (handler *UserHandler) RegisterUser(c echo.Context) error {
 	}
 
 	responseData := UserResponRegister{
-		Name:       newUser.Name,
-		Occupation: newUser.Occupation,
-		Email:      newUser.Email,
-		Role:       user.Role,
-		Token:      token,
-		Respon:     "Silahkan chek email anda untuk melakukan virifikasi email.",
+		UserName: newUser.UserName,
+		Email:    newUser.Email,
+		Notelp:   newUser.Notelp,
+		Token:    token,
+		Respon:   "Silahkan chek email anda untuk melakukan virifikasi email.",
 	}
 
 	return c.JSON(http.StatusCreated, responses.WebResponse("insert success", responseData))
 }
 
-func (handler *UserHandler) LoginUser(c echo.Context) error {
-	var reqData = UserRequestLogin{}
-	errBind := c.Bind(&reqData)
-	if errBind != nil {
-		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid."+errBind.Error(), nil))
-	}
+// func (handler *UserHandler) LoginUser(c echo.Context) error {
+// 	var reqData = UserRequestLogin{}
+// 	errBind := c.Bind(&reqData)
+// 	if errBind != nil {
+// 		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid."+errBind.Error(), nil))
+// 	}
 
-	result, token, err := handler.userService.Login(reqData.Email, reqData.Password)
-	if err != nil {
-		return c.JSON(http.StatusForbidden, responses.WebResponse("Email atau password tidak boleh kosong "+err.Error(), nil))
-	}
+// 	result, token, err := handler.userService.Login(reqData.Email, reqData.Password)
+// 	if err != nil {
+// 		return c.JSON(http.StatusForbidden, responses.WebResponse("Email atau password tidak boleh kosong "+err.Error(), nil))
+// 	}
 
-	responData := map[string]any{
-		"id":                 result.ID,
-		"name":               result.Name,
-		"email":              result.Email,
-		"role":               result.Role,
-		"email_verification": result.EmailVerification,
-		"toke":               token,
-	}
+// 	responData := map[string]any{
+// 		"id":                 result.ID,
+// 		"name":               result.Name,
+// 		"email":              result.Email,
+// 		"role":               result.Role,
+// 		"email_verification": result.EmailVerification,
+// 		"toke":               token,
+// 	}
 
-	return c.JSON(http.StatusOK, responses.WebResponse("insert success", responData))
-}
+// 	return c.JSON(http.StatusOK, responses.WebResponse("insert success", responData))
+// }

@@ -1,10 +1,9 @@
 package handler
 
 type UserResponRegister struct {
-	Name       string `json:"name"`
-	Occupation string `json:"occupation"`
-	Email      string `json:"email"`
-	Role       string `json:"role"`
-	Token      string `json:"token"`
-	Respon     string `json:"respon"`
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
+	Notelp   string `json:"no_telp"`
+	Token    string `json:"token"`
+	Respon   string `json:"respon"`
 }

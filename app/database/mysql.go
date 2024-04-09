@@ -2,7 +2,6 @@ package database
 
 import (
 	"StartUp-Go/app/configs"
-	"StartUp-Go/features/user/data"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -23,5 +22,6 @@ func InitDBMysql(cfg *configs.AppConfig) *gorm.DB {
 }
 
 func InitMigrate(db *gorm.DB) {
-	db.AutoMigrate(&data.User{})
+	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Biodata{})
 }

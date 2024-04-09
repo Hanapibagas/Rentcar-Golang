@@ -1,11 +1,11 @@
 package data
 
 import (
+	"StartUp-Go/app/database"
 	"StartUp-Go/app/middlewares"
 	"StartUp-Go/features/user"
-	"errors"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -19,66 +19,14 @@ func NewUser(db *gorm.DB) user.UserDataInterface {
 	}
 }
 
-func (repo *userQuery) CheckPassword(savedPassword string, inputPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(savedPassword), []byte(inputPassword))
-	return err == nil
-}
-
-func (repo *userQuery) UpdatePassword(id uint, input user.UserCore) error {
-	authInput := User{
+func (repo *userQuery) Register(input user.RegisterCore) (data *user.RegisterCore, token string, err error) {
+	uuid := uuid.New().String()
+	inputRegisterGorm := database.User{
+		Uuid:     uuid,
+		UserName: input.UserName,
 		Password: input.Password,
-	}
-
-	tx := repo.db.Model(&User{}).Where("id = ?", id).Updates(&authInput)
-	if tx.Error != nil {
-		return tx.Error
-	}
-
-	if tx.RowsAffected == 0 {
-		return errors.New("edit failed, row affected = 0")
-	}
-
-	return nil
-}
-
-func (repo *userQuery) VerifiedEmail(id uint, input user.EmailVerification) error {
-	userEmailVerified := User{
-		EmailVerification: input.EmailVerification,
-	}
-
-	tx := repo.db.Model(&User{}).Where("id = ?", id).Updates(&userEmailVerified)
-
-	if tx.Error != nil {
-		return errors.New("database error: " + tx.Error.Error())
-	}
-
-	if tx.RowsAffected == 0 {
-		return errors.New("no rows affected, user not found")
-	}
-
-	return nil
-}
-
-func (repo *userQuery) Login(email string, password string) (data *user.UserCore, err error) {
-	var user User
-	tx := repo.db.Where("email = ?", email).First(&user)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	result := user.ModelToCoreLogin()
-
-	return &result, nil
-}
-
-func (repo *userQuery) Register(input user.UserCore) (data *user.UserCore, token string, err error) {
-	inputRegisterGorm := User{
-		Name:              input.Name,
-		Occupation:        input.Occupation,
-		Email:             input.Email,
-		EmailVerification: "not yet verified",
-		Password:          input.Password,
-		Role:              "user",
+		Status:   "F",
+		Role:     1,
 	}
 
 	tx := repo.db.Create(&inputRegisterGorm)
@@ -86,16 +34,16 @@ func (repo *userQuery) Register(input user.UserCore) (data *user.UserCore, token
 		return nil, "", tx.Error
 	}
 
-	if tx.RowsAffected == 0 {
-		return nil, "", errors.New("insert failed, row affected = 0")
+	inputBiodataGorm := database.Biodata{
+		UuidUser: inputRegisterGorm.Uuid,
+		Email:    input.Email,
+		Notelp:   input.Notelpn,
+	}
+	if err := repo.db.Create(&inputBiodataGorm).Error; err != nil {
+		return nil, "", err
 	}
 
-	var authGorm User
-	tx = repo.db.Where("email = ?", input.Email).First(&authGorm)
-	if tx.Error != nil {
-		return nil, "", tx.Error
-	}
-
+	var authGorm database.User
 	result := authGorm.ModelToCore()
 
 	generatedToken, err := middlewares.CreateToken(int(result.ID))
