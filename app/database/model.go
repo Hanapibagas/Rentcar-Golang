@@ -47,6 +47,15 @@ type Biodata struct {
 	FotoKtp       string        `gorm:"size:128;default:null"`
 }
 
+func (u User) ModelToLogin() user.LoginCore {
+	return user.LoginCore{
+		ID:       u.ID,
+		UserName: u.UserName,
+		Status:   string(u.Status),
+		Password: u.Password,
+	}
+}
+
 func (u User) ModelToCore() user.RegisterCore {
 	return user.RegisterCore{
 		UserName: u.UserName,
