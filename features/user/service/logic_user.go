@@ -24,6 +24,30 @@ func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.User
 	}
 }
 
+func (service *userService) DeleteByUuid(uuid string) error {
+	err := service.userData.DeleteByUuid(uuid)
+	return err
+}
+
+func (service *userService) GetByUuid(uuid string) (*user.GetByIdCustomer, error) {
+	result, err := service.userData.GetByUuid(uuid)
+	return result, err
+}
+
+func (service *userService) GetAllCostumer() ([]user.GetAllCustomer, error) {
+	resul, err := service.userData.GetAllCostumer()
+	return resul, err
+}
+
+func (service *userService) UpdateCustomer(uuid string, input user.UpdateCustomer, file multipart.File, nameFile string) error {
+	if uuid == "" {
+		return errors.New("invalid uuid")
+	}
+
+	err := service.userData.UpdateCustomer(uuid, input, file, nameFile)
+	return err
+}
+
 func (service *userService) InsertCustomer(input user.InsertCustomer, file multipart.File, nameFile string) error {
 	err := service.userData.InsertCustomer(input, file, nameFile)
 	return err

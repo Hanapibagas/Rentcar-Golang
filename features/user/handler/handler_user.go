@@ -23,6 +23,108 @@ func NewUser(service user.UserServiceInterface) *UserHandler {
 	}
 }
 
+func (handler *UserHandler) DeleteByUuidCostumer(c echo.Context) error {
+}
+
+func (handler *UserHandler) GetByUuidCostumer(c echo.Context) error {
+	userId := c.Param("uuid")
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid.", nil))
+	}
+
+	result, err := handler.userService.GetByUuid(userId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error bind data. data not valid."+err.Error(), nil))
+	}
+
+	return c.JSON(http.StatusOK, responses.WebResponse("success.", result))
+}
+
+func getRoleString(role string) string {
+	switch role {
+	case "2":
+		return "super admin"
+	case "3":
+		return "admin"
+	case "4":
+		return "driver"
+	case "5":
+		return "customer"
+	default:
+		return "owner"
+	}
+}
+
+func (handler *UserHandler) GetAllCostumer(c echo.Context) error {
+	result, err := handler.userService.GetAllCostumer()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error read data."+err.Error(), nil))
+	}
+
+	var customerResponse []ListCostumerRespon
+	for _, customer := range result {
+		roleString := getRoleString(customer.Role)
+		customerResponse = append(customerResponse, ListCostumerRespon{
+			Uuid:          customer.Uuid,
+			UserName:      customer.UserName,
+			Status:        customer.Status,
+			Role:          roleString,
+			FullName:      customer.FullName,
+			TempatLahir:   customer.TempatLahir,
+			Alamat:        customer.Alamat,
+			Email:         customer.Email,
+			Notelp:        customer.Notelp,
+			NotelpKerabat: customer.NotelpKerabat,
+			Ktp:           customer.Ktp,
+			Pekerjaan:     customer.Pekerjaan,
+			FotoKtp:       customer.FotoKtp,
+		})
+	}
+
+	return c.JSON(http.StatusOK, responses.WebResponse("success.", customerResponse))
+}
+
+func (handler *UserHandler) UpdateCostumer(c echo.Context) error {
+	var fileSize int64
+	var nameFile string
+	userId := c.Param("uuid")
+
+	var reqData = UpdatetCostumer{}
+	errBind := c.Bind(&reqData)
+	if errBind != nil {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid"+errBind.Error(), nil))
+	}
+
+	costumerUpdateCore := RequestToUpdateCostumer(reqData)
+
+	fileHeader, _ := c.FormFile("foto_ktp")
+	var file multipart.File
+	if fileHeader != nil {
+		openFileHeader, _ := fileHeader.Open()
+		file = openFileHeader
+
+		nameFile = fileHeader.Filename
+		nameFileSplit := strings.Split(nameFile, ".")
+		indexFile := len(nameFileSplit) - 1
+
+		if nameFileSplit[indexFile] != "jpeg" && nameFileSplit[indexFile] != "png" && nameFileSplit[indexFile] != "jpg" {
+			return c.JSON(http.StatusBadRequest, responses.WebResponse("error invalid type format, format file not valid", nil))
+		}
+
+		fileSize = fileHeader.Size
+		if fileSize >= 2000000 {
+			return c.JSON(http.StatusBadRequest, responses.WebResponse("error size data, file size is too big", nil))
+		}
+	}
+
+	err := handler.userService.UpdateCustomer(userId, costumerUpdateCore, file, nameFile)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error update data. update failed", nil))
+	}
+
+	return c.JSON(http.StatusOK, responses.WebResponse("Update pelanggan successful", nil))
+}
+
 func (handler *UserHandler) InsertCostumer(c echo.Context) error {
 	var fileSize int64
 	var nameFile string
@@ -257,18 +359,15 @@ func (handler *UserHandler) LoginUser(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, responses.WebResponse("Email atau password tidak boleh kosong "+err.Error(), nil))
 	}
 
-	log.Println("Data user:", result)
+	log.Println("DATA:", result)
 
-	if result.Status != "" {
-		responseData := map[string]interface{}{
-			"id":        result.ID,
-			"user_name": result.UserName,
-			"status":    result.Status,
-			"token":     token,
-		}
-
-		return c.JSON(http.StatusOK, responses.WebResponse("Login success", responseData))
+	responseData := map[string]any{
+		"id":        result.ID,
+		"uuid":      result.Uuid,
+		"user_name": result.UserName,
+		"status":    result.Status,
+		"token":     token,
 	}
 
-	return c.JSON(http.StatusForbidden, responses.WebResponse("Status not available", nil))
+	return c.JSON(http.StatusOK, responses.WebResponse("Login success", responseData))
 }

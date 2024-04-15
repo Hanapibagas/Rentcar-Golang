@@ -3,8 +3,6 @@ package database
 import (
 	"StartUp-Go/features/user"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type UserRole string
@@ -21,7 +19,8 @@ const (
 )
 
 type User struct {
-	gorm.Model
+	// gorm.Model
+	ID       uint     `gorm:"primaryKey"`
 	Uuid     string   `gorm:"type:char(38);default:null"`
 	UserName string   `gorm:"size:100;default:null"`
 	Password string   `gorm:"size:255;default:null"`
@@ -30,7 +29,8 @@ type User struct {
 }
 
 type Biodata struct {
-	gorm.Model
+	// gorm.Model
+	ID            uint          `gorm:"primaryKey"`
 	UuidUser      string        `gorm:"size:38;default:null"`
 	Uuid          string        `gorm:"type:char(38);default:null"`
 	FullName      string        `gorm:"size:128;default:null"`
@@ -47,9 +47,26 @@ type Biodata struct {
 	FotoKtp       string        `gorm:"size:128;default:null"`
 }
 
+// func CoreToListCatomer
+
+func CoreUpdate(input user.InsertCustomer) Biodata {
+	return Biodata{
+		FullName:      input.FullName,
+		TempatLahir:   input.TempatLahir,
+		Alamat:        input.Alamat,
+		Email:         input.Email,
+		Notelp:        input.Notelp,
+		NotelpKerabat: input.NotelpKerabat,
+		Ktp:           input.Ktp,
+		Pekerjaan:     input.Pekerjaan,
+		FotoKtp:       input.FotoKtp,
+	}
+}
+
 func (u User) ModelToLogin() user.LoginCore {
 	return user.LoginCore{
 		ID:       u.ID,
+		Uuid:     u.Uuid,
 		UserName: u.UserName,
 		Status:   string(u.Status),
 		Password: u.Password,
