@@ -79,7 +79,7 @@ func (repo *userQuery) GetByUuid(uuid string) (*user.GetByIdCustomer, error) {
 
 func (repo *userQuery) GetAllCostumer() ([]user.GetAllCustomer, error) {
 	var castomerUser []database.User
-	tx := repo.db.Find(&castomerUser)
+	tx := repo.db.Where("role = ?", 5).Find(&castomerUser)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -201,6 +201,57 @@ func (repo *userQuery) InsertCustomer(input user.InsertCustomer, file multipart.
 		Ktp:           input.Ktp,
 		Pekerjaan:     input.Pekerjaan,
 		FotoKtp:       input.FotoKtp,
+	}
+
+	repo.db.Create(&inputBiodataGorm)
+
+	return nil
+}
+
+func (repo *userQuery) InsertUser(input user.InstertUser, file multipart.File, nameFile string) error {
+	var folderName string = "img/user"
+	uuid := uuid.New().String()
+
+	if input.Password == "" {
+		input.Password = "12345678"
+	}
+	hashedPassword, err := repo.hashService.HashPassword(input.Password)
+	if err != nil {
+		return errors.New("error hashing password")
+	}
+
+	if file != nil {
+		imgUrl, errUpload := repo.uploadService.Upload(file, nameFile, folderName)
+		if errUpload != nil {
+			return errors.New("error upload img")
+		}
+
+		input.FotoKtp = imgUrl.SecureURL
+	}
+
+	roleInt, err := strconv.Atoi(input.Role)
+	if err != nil {
+		return errors.New("error converting role to int")
+	}
+
+	inputRegisterGorm := database.User{
+		Uuid:     uuid,
+		UserName: input.UserName,
+		Password: hashedPassword,
+		Status:   "F",
+		Role:     roleInt,
+	}
+
+	repo.db.Create(&inputRegisterGorm)
+
+	inputBiodataGorm := database.Biodata{
+		UuidUser: inputRegisterGorm.Uuid,
+		Uuid:     uuid,
+		FullName: input.FullName,
+		Alamat:   input.Alamat,
+		Email:    input.Email,
+		Notelp:   input.Notelp,
+		FotoKtp:  input.FotoKtp,
 	}
 
 	repo.db.Create(&inputBiodataGorm)

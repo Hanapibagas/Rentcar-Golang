@@ -24,6 +24,11 @@ func NewUser(repo user.UserDataInterface, hash encrypts.HashInterface) user.User
 	}
 }
 
+func (service *userService) InsertUser(input user.InstertUser, file multipart.File, nameFile string) error {
+	err := service.userData.InsertUser(input, file, nameFile)
+	return err
+}
+
 func (service *userService) DeleteByUuid(uuid string) error {
 	err := service.userData.DeleteByUuid(uuid)
 	return err

@@ -35,6 +35,33 @@ type InsertCostumer struct {
 	Pekerjaan     string `json:"pekerjaan" form:"pekerjaan"`
 	FotoKtp       string `json:"foto_ktp" form:"foto_ktp"`
 }
+
+type InsertUser struct {
+	UserName string `json:"user_name" form:"user_name"`
+	Password string `json:"password" form:"password"`
+	Status   string `json:"status" form:"status"`
+	Role     string `json:"role" form:"role"`
+	FullName string `json:"full_name" form:"full_name"`
+	Alamat   string `json:"alamat" form:"alamat"`
+	Email    string `json:"email" form:"email"`
+	Notelp   string `json:"notelp" form:"notelp"`
+	FotoKtp  string `json:"foto_ktp" form:"foto_ktp"`
+}
+
+func RequestToCoreUser(input InsertUser) user.InstertUser {
+	return user.InstertUser{
+		UserName: input.UserName,
+		Password: input.Password,
+		Status:   input.Status,
+		Role:     input.Role,
+		FullName: input.FullName,
+		Alamat:   input.Alamat,
+		Email:    input.Email,
+		Notelp:   input.Notelp,
+		FotoKtp:  input.FotoKtp,
+	}
+}
+
 type UpdatetCostumer struct {
 	UserName string `json:"user_name" form:"user_name"`
 	Password string `json:"password" form:"password"`
@@ -50,7 +77,6 @@ type UpdatetCostumer struct {
 	Pekerjaan     string `json:"pekerjaan" form:"pekerjaan"`
 	FotoKtp       string `json:"foto_ktp" form:"foto_ktp"`
 }
-
 
 func RequestToUpdateCostumer(input UpdatetCostumer) user.UpdateCustomer {
 	return user.UpdateCustomer{

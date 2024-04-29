@@ -24,6 +24,19 @@ func NewUser(service user.UserServiceInterface) *UserHandler {
 }
 
 func (handler *UserHandler) DeleteByUuidCostumer(c echo.Context) error {
+	userId := c.Param("uuid")
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid.", nil))
+	}
+
+	err := handler.userService.DeleteByUuid(userId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error bind data. data not valid."+err.Error(), nil))
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "success",
+	})
 }
 
 func (handler *UserHandler) GetByUuidCostumer(c echo.Context) error {
@@ -229,6 +242,118 @@ func (handler *UserHandler) InsertCostumer(c echo.Context) error {
 	smtp.SendMail(smtpHost+":"+smtpPort, auth, surel_pengirim, []string{penerima}, message)
 
 	return c.JSON(http.StatusOK, responses.WebResponse("Insert pelanggan successful", nil))
+}
+
+func (handler *UserHandler) InsertUser(c echo.Context) error {
+	var fileSize int64
+	var nameFile string
+
+	var reqData = InsertUser{}
+	errBind := c.Bind(&reqData)
+	if errBind != nil {
+		return c.JSON(http.StatusBadRequest, responses.WebResponse("error bind data. data not valid", nil))
+	}
+
+	userCore := RequestToCoreUser(reqData)
+
+	surel_pengirim := "disdukcapilmkskota@gmail.com"
+	kata_sandi := "tqozsznukogmyrdr"
+	penerima := userCore.Email
+
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
+	emailBody := `
+			<html>
+			<head>
+				<style>
+					.container {
+							font-family: Arial, sans-serif;
+							max-width: 600px;
+							margin: 0 auto;
+							padding: 20px;
+							border: 1px solid #ccc;
+							border-radius: 5px;
+					}
+					h1 {
+						text-align: center;
+						color: #333;
+					}
+					p {
+							color: #666;
+					}
+					.container a{
+						color: white;
+					}
+					.button {
+						display: inline-block;
+						padding: 10px 20px;
+						background-color: #007bff;
+						color: white;
+						text-decoration: none;
+						border-radius: 5px;
+						transition: background-color 0.3s ease;
+						margin-left: 240px;
+					}
+						.button:hover {
+						background-color: #0056b3;
+						color: white;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<h1>Welcome to Our Platform</h1>
+					<hr>
+					<p>Hello ` + reqData.Email + `,</p>
+					<p>Thank you for registering with us. We are excited to have you on board!</p>
+					<p>Please verify the grow below</p>
+					<a href="http://127.0.0.1:8080/verified" class="button">click me to verify</a>
+				</div>
+			</body>
+			</html>
+		`
+
+	message := []byte("Subject: Testing Go Email\r\n" +
+		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n" +
+		emailBody)
+
+	auth := smtp.PlainAuth("", surel_pengirim, kata_sandi, smtpHost)
+
+	fileHeader, _ := c.FormFile("foto_ktp")
+	var file multipart.File
+	if fileHeader != nil {
+		openFileHeader, _ := fileHeader.Open()
+		file = openFileHeader
+
+		nameFile = fileHeader.Filename
+		nameFileSplit := strings.Split(nameFile, ".")
+		indexFile := len(nameFileSplit) - 1
+
+		if nameFileSplit[indexFile] != "jpeg" && nameFileSplit[indexFile] != "png" && nameFileSplit[indexFile] != "jpg" {
+			return c.JSON(http.StatusBadRequest, responses.WebResponse("error invalid type format, format file not valid", nil))
+		}
+
+		fileSize = fileHeader.Size
+		if fileSize >= 2000000 {
+			return c.JSON(http.StatusBadRequest, responses.WebResponse("error size data, file size is too big", nil))
+		}
+	}
+
+	err := handler.userService.InsertUser(userCore, file, nameFile)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.WebResponse("error update data. update failed."+err.Error(), nil))
+	}
+
+	result := map[string]interface{}{
+		"hasil":  userCore,
+		"file":   file,
+		"folder": nameFile,
+	}
+
+	smtp.SendMail(smtpHost+":"+smtpPort, auth, surel_pengirim, []string{penerima}, message)
+
+	return c.JSON(http.StatusOK, responses.WebResponse("Insert user successful", result))
 }
 
 func (handler *UserHandler) VerifiedEmail(c echo.Context) error {
