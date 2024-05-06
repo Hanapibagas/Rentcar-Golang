@@ -53,20 +53,6 @@ func (handler *UserHandler) GetByUuidCostumer(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.WebResponse("success.", result))
 }
 
-func getRoleString(role string) string {
-	switch role {
-	case "2":
-		return "super admin"
-	case "3":
-		return "admin"
-	case "4":
-		return "driver"
-	case "5":
-		return "customer"
-	default:
-		return "owner"
-	}
-}
 
 func (handler *UserHandler) GetAllCostumer(c echo.Context) error {
 	result, err := handler.userService.GetAllCostumer()
@@ -76,21 +62,21 @@ func (handler *UserHandler) GetAllCostumer(c echo.Context) error {
 
 	var customerResponse []ListCostumerRespon
 	for _, customer := range result {
-		roleString := getRoleString(customer.Role)
+		// roleString := getRoleString(customer.Role)
 		customerResponse = append(customerResponse, ListCostumerRespon{
-			Uuid:          customer.Uuid,
-			UserName:      customer.UserName,
-			Status:        customer.Status,
-			Role:          roleString,
-			FullName:      customer.FullName,
-			TempatLahir:   customer.TempatLahir,
-			Alamat:        customer.Alamat,
-			Email:         customer.Email,
-			Notelp:        customer.Notelp,
-			NotelpKerabat: customer.NotelpKerabat,
-			Ktp:           customer.Ktp,
-			Pekerjaan:     customer.Pekerjaan,
-			FotoKtp:       customer.FotoKtp,
+			Uuid: customer.Uuid,
+			// UserName: customer.UserName,
+			// Status:   customer.Status,
+			// Role:     roleString,
+			FullName: customer.FullName,
+			// TempatLahir: customer.TempatLahir,
+			// Alamat:      customer.Alamat,
+			Email: customer.Email,
+			// Notelp:        customer.Notelp,
+			// NotelpKerabat: customer.NotelpKerabat,
+			Ktp: customer.Ktp,
+			// Pekerjaan:     customer.Pekerjaan,
+			// FotoKtp:       customer.FotoKtp,
 		})
 	}
 
@@ -139,7 +125,7 @@ func (handler *UserHandler) UpdateCostumer(c echo.Context) error {
 }
 
 func (handler *UserHandler) InsertCostumer(c echo.Context) error {
-	var fileSize int64
+	// var fileSize int64
 	var nameFile string
 
 	var reqData = InsertCostumer{}
@@ -228,10 +214,10 @@ func (handler *UserHandler) InsertCostumer(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, responses.WebResponse("error invalid type format, format file not valid", nil))
 		}
 
-		fileSize = fileHeader.Size
-		if fileSize >= 2000000 {
-			return c.JSON(http.StatusBadRequest, responses.WebResponse("error size data, file size is too big", nil))
-		}
+		// fileSize = fileHeader.Size
+		// if fileSize >= 2000000 {
+		// 	return c.JSON(http.StatusBadRequest, responses.WebResponse("error size data, file size is too big", nil))
+		// }
 	}
 
 	err := handler.userService.InsertCustomer(costumerCore, file, nameFile)

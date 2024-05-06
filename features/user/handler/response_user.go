@@ -25,19 +25,19 @@ type ListCostumerRespon struct {
 
 func CoreRespon(data ListCostumerRespon) ListCostumerRespon {
 	return ListCostumerRespon{
-		Uuid:          data.Uuid,
-		UserName:      data.UserName,
-		Status:        data.Status,
-		Role:          data.Role,
-		FullName:      data.FullName,
-		TempatLahir:   data.TempatLahir,
-		Alamat:        data.Alamat,
-		Email:         data.Email,
-		Notelp:        data.Notelp,
-		NotelpKerabat: data.NotelpKerabat,
-		Ktp:           data.Ktp,
-		Pekerjaan:     data.Pekerjaan,
-		FotoKtp:       data.FotoKtp,
+		Uuid: data.Uuid,
+		// UserName:      data.UserName,
+		// Status:        data.Status,
+		// Role:          data.Role,
+		// FullName:      data.FullName,
+		// TempatLahir:   data.TempatLahir,
+		// Alamat:        data.Alamat,
+		Email: data.Email,
+		// Notelp:        data.Notelp,
+		// NotelpKerabat: data.NotelpKerabat,
+		Ktp: data.Ktp,
+		// Pekerjaan:     data.Pekerjaan,
+		// FotoKtp:       data.FotoKtp,
 	}
 }
 

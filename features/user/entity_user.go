@@ -104,22 +104,26 @@ type UserDataInterface interface {
 	Register(input RegisterCore) (data *RegisterCore, token string, err error)
 	Login(username, password string) (data *LoginCore, err error)
 	VerifiedEmail(id uint, input RegisterCore) error
+	//
 	InsertCustomer(input InsertCustomer, file multipart.File, nameFile string) error
-	InsertUser(input InstertUser, file multipart.File, nameFile string) error
 	UpdateCustomer(uuid string, input UpdateCustomer, file multipart.File, nameFile string) error
 	GetAllCostumer() ([]GetAllCustomer, error)
 	GetByUuid(uuid string) (*GetByIdCustomer, error)
 	DeleteByUuid(uuid string) error
+	//
+	InsertUser(input InstertUser, file multipart.File, nameFile string) error
 }
 
 type UserServiceInterface interface {
 	Register(input RegisterCore) (data *RegisterCore, token string, err error)
 	Login(username, password string) (data *LoginCore, token string, err error)
 	VerifiedEmail(id uint, input RegisterCore) error
+	//
 	InsertCustomer(input InsertCustomer, file multipart.File, nameFile string) error
-	InsertUser(input InstertUser, file multipart.File, nameFile string) error
 	UpdateCustomer(uuid string, input UpdateCustomer, file multipart.File, nameFile string) error
 	GetAllCostumer() ([]GetAllCustomer, error)
 	GetByUuid(uuid string) (*GetByIdCustomer, error)
 	DeleteByUuid(uuid string) error
+	//
+	InsertUser(input InstertUser, file multipart.File, nameFile string) error
 }
