@@ -1,7 +1,7 @@
 package database
 
 import (
-	"StartUp-Go/features/user"
+	"StartUp-Go/features/auth"
 	"time"
 )
 
@@ -49,32 +49,32 @@ type Biodata struct {
 
 // func CoreToListCatomer
 
-func CoreUpdate(input user.InsertCustomer) Biodata {
-	return Biodata{
-		FullName:      input.FullName,
-		TempatLahir:   input.TempatLahir,
-		Alamat:        input.Alamat,
-		Email:         input.Email,
-		Notelp:        input.Notelp,
-		NotelpKerabat: input.NotelpKerabat,
-		Ktp:           input.Ktp,
-		Pekerjaan:     input.Pekerjaan,
-		FotoKtp:       input.FotoKtp,
-	}
-}
+// func CoreUpdate(input user.InsertCustomer) Biodata {
+// 	return Biodata{
+// 		FullName:      input.FullName,
+// 		TempatLahir:   input.TempatLahir,
+// 		Alamat:        input.Alamat,
+// 		Email:         input.Email,
+// 		Notelp:        input.Notelp,
+// 		NotelpKerabat: input.NotelpKerabat,
+// 		Ktp:           input.Ktp,
+// 		Pekerjaan:     input.Pekerjaan,
+// 		FotoKtp:       input.FotoKtp,
+// 	}
+// }
 
-func (u User) ModelToLogin() user.LoginCore {
-	return user.LoginCore{
-		ID:       u.ID,
-		Uuid:     u.Uuid,
-		UserName: u.UserName,
-		Status:   string(u.Status),
-		Password: u.Password,
-	}
-}
+// func (u User) ModelToLogin() auth.LoginCore {
+// 	return auth.LoginCore{
+// 		ID:       u.ID,
+// 		Uuid:     u.Uuid,
+// 		UserName: u.UserName,
+// 		Status:   string(u.Status),
+// 		Password: u.Password,
+// 	}
+// }
 
-func (u User) ModelToCore() user.RegisterCore {
-	return user.RegisterCore{
+func (u User) ModelToCore() auth.RegisterCore {
+	return auth.RegisterCore{
 		UserName: u.UserName,
 		Password: u.Password,
 	}

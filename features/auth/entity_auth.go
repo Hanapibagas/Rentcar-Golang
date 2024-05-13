@@ -25,7 +25,7 @@ type AuthDataInterface interface {
 	VerifiedEmail(id uint, input RegisterCore) error
 }
 
-type AuthServiceInterfave interface {
+type AuthServiceInterface interface {
 	Register(input RegisterCore) (data *RegisterCore, token string, err error)
 	Login(username, password string) (data *LoginCore, token string, err error)
 	VerifiedEmail(id uint, input RegisterCore) error

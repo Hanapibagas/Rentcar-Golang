@@ -1,7 +1,6 @@
 package service
 
 import (
-	"StartUp-Go/app/middlewares"
 	"StartUp-Go/features/auth"
 	"StartUp-Go/utils/encrypts"
 	"errors"
@@ -9,43 +8,25 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type authrService struct {
-	userData    auth.AuthDataInterface
+type authService struct {
+	authData    auth.AuthDataInterface
 	hashService encrypts.HashInterface
 	validate    *validator.Validate
 }
 
-func NewUser(repo auth.AuthDataInterface, hash encrypts.HashInterface) auth.AuthServiceInterfave {
-	return &authrService{
-		userData:    repo,
+func NewAuth(repo auth.AuthDataInterface, hash encrypts.HashInterface) auth.AuthServiceInterface {
+	return &authService{
+		authData:    repo,
 		hashService: hash,
 		validate:    validator.New(),
 	}
 }
 
-func (service *authrService) Login(username string, password string) (data *auth.LoginCore, token string, err error) {
-	if username == "" || password == "" {
-		return nil, "", errors.New("email dan password wajib diisi")
-	}
-
-	data, err = service.userData.Login(username, password)
-	if err != nil {
-		return nil, "", errors.New("email atau password salah")
-	}
-	isValid := service.hashService.CheckPasswordHash(data.Password, password)
-	if !isValid {
-		return nil, "", errors.New("password tidak sesuai")
-	}
-
-	token, errJwt := middlewares.CreateToken(int(data.ID))
-	if errJwt != nil {
-		return nil, "", errJwt
-	}
-
-	return data, token, err
+func (a *authService) Login(username string, password string) (data *auth.LoginCore, token string, err error) {
+	panic("unimplemented")
 }
 
-func (service *authrService) Register(input auth.RegisterCore) (data *auth.RegisterCore, token string, err error) {
+func (service *authService) Register(input auth.RegisterCore) (data *auth.RegisterCore, token string, err error) {
 	errValidate := service.validate.Struct(input)
 	if errValidate != nil {
 		return nil, "", errValidate
@@ -59,21 +40,11 @@ func (service *authrService) Register(input auth.RegisterCore) (data *auth.Regis
 		input.Password = hashedPass
 	}
 
-	data, generatedToken, err := service.userData.Register(input)
+	data, generatedToken, err := service.authData.Register(input)
 	return data, generatedToken, err
 }
 
-func (service *authrService) VerifiedEmail(id uint, input auth.RegisterCore) error {
-	errValidate := service.validate.Struct(input)
-	if errValidate != nil {
-		return errValidate
-	}
-
-	// Periksa apakah EmailVerification tidak kosong
-	if input.Status == "" {
-		return errors.New("Status Verification is empty.")
-	}
-
-	err := service.userData.VerifiedEmail(id, input)
-	return err
+// VerifiedEmail implements auth.AuthServiceInterface.
+func (a *authService) VerifiedEmail(id uint, input auth.RegisterCore) error {
+	panic("unimplemented")
 }
